@@ -1,0 +1,6 @@
+{
+  "name": "محرك البحث اللغوي والحاسبة الإحصائية",
+  "description": "منظومة إحصائية وصرفية ومعجمية متكاملة للبحث الدقيق في القرآن الكريم والكتب العربية وتحليل الجذور والاشتقاقات.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
