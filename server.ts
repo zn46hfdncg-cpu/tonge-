@@ -365,6 +365,11 @@ ${contextPrompt}
 
 // Serve frontend apps
 async function startServer() {
+  if (process.env.VERCEL) {
+    console.log("Detected Vercel Serverless environment. Relying on Vercel's built-in routing; skipping local listener and static assets configuration.");
+    return;
+  }
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
