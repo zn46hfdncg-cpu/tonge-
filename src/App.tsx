@@ -29,14 +29,33 @@ const SAMPLE_WORDS = [
   { word: "أنلزمكموها", type: "quranic", description: "قرآني - أطول كلمة في القرآن" },
   { word: "فسيرى", type: "quranic", description: "قرآني - رؤية العمل" },
   { word: "يستبشرون", type: "quranic", description: "قرآني - البشرى والسرور" },
-  { word: "الفلسفة", type: "library", description: "مكتبي - مصطلح لغوي عام" },
+  { word: "يسروا", type: "hadith", description: "حديثي - يسروا ولا تعسروا" },
+];
+
+// قائمة الكتب الـ ١٤ الصحاح في الحديث الشريف المعتمدة بالفهرسة
+const HADITH_BOOKS_14 = [
+  "كامل الكتب الـ ١٤ الصحاح بالتوازي",
+  "صحيح البخاري",
+  "صحيح مسلم",
+  "سنن أبي داود",
+  "سنن الترمذي",
+  "سنن النسائي",
+  "سنن ابن ماجه",
+  "موطأ مالك",
+  "مسند أحمد",
+  "سنن الدارمي",
+  "صحيح ابن خزيمة",
+  "صحيح ابن حبان",
+  "مستدرك الحاكم",
+  "سنن الدارقطني",
+  "مصنف عبد الرزاق"
 ];
 
 export default function App() {
   const [word, setWord] = useState("فسنيرهم");
-  const [indexingType, setIndexingType] = useState<"quranic" | "library">("quranic");
+  const [indexingType, setIndexingType] = useState<"quranic" | "hadith">("quranic");
   const [customText, setCustomText] = useState("");
-  const [documentName, setDocumentName] = useState("كتاب دلائل الإيجاز اللغوي");
+  const [documentName, setDocumentName] = useState("كامل الكتب الـ ١٤ الصحاح بالتوازي");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +75,7 @@ export default function App() {
     if (file) {
       setUploadedFileName(file.name);
       setDocumentName(file.name.replace(/\.[^/.]+$/, ""));
-      setIndexingType("library");
+      setIndexingType("hadith");
       
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -70,7 +89,7 @@ export default function App() {
   const handleAnalyze = async (
     e?: React.FormEvent | null, 
     forcedWord?: string, 
-    forcedType?: "quranic" | "library"
+    forcedType?: "quranic" | "hadith"
   ) => {
     if (e) e.preventDefault();
     
@@ -94,8 +113,8 @@ export default function App() {
         body: JSON.stringify({
           word: targetWord.trim(),
           indexingType: targetType,
-          customText: targetType === "library" ? (customText || "هذا النص العام يحتوي على دراسات لغوية متطورة حول الكلمات الفلسفية والصرفية العريقة لخدمة محبي العلوم والآداب.") : "",
-          documentName: targetType === "library" ? documentName : "المصحف الشريف",
+          customText: targetType === "hadith" ? (customText || "الكتب الـ ١٤ الصحاح والسنن والمسانيد لخدمة السنة النبوية الشريفة.") : "",
+          documentName: targetType === "hadith" ? documentName : "المصحف الشريف",
         }),
       });
 
@@ -124,7 +143,7 @@ export default function App() {
           if (indexingType === "quranic") {
             return `  ${index + 1}. [${p.location}] | [الآية: ${p.reference}] | [الجزء: ${p.extra}]\n     السياق: ${p.context}`;
           } else {
-            return `  ${index + 1}. [${p.location}] | [صفحة: ${p.reference}] | [سطر: ${p.extra}]\n     السياق: ${p.context}`;
+            return `  ${index + 1}. [${p.location}] | [الحديث/الصفحة: ${p.reference}] | [الباب/الجزء: ${p.extra}]\n     السياق: ${p.context}`;
           }
         }).join("\n")
       : "  لا توجد مواضع مسجلة بدقة.";
@@ -174,14 +193,14 @@ ${derivationsText}
             <div className="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/20 text-slate-950 font-bold font-serif text-2xl">
               ع
             </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-100 font-sans flex items-center gap-2">
-                المحرك الإحصائي <span className="text-sky-400">للبحث الصرفي</span>
-              </h1>
-              <p className="text-xs text-slate-400 mt-0.5 font-sans">
-                بوابة التوثيق والتدقيق الصرفي والمعجمي للقرآن الكريم والكتب العربية
-              </p>
-            </div>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight text-slate-100 font-sans flex items-center gap-2">
+                  المحرك الإحصائي <span className="text-sky-400">للصرف والحديث</span>
+                </h1>
+                <p className="text-xs text-slate-400 mt-0.5 font-sans">
+                  بوابة التوثيق والتدقيق الصرفي والمعجمي للقرآن الكريم والكتب الـ ١٤ الصحاح للحديث الشريف
+                </p>
+              </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs font-mono text-slate-400">
@@ -230,24 +249,25 @@ ${derivationsText}
                   <button
                     type="button"
                     onClick={() => {
-                      setIndexingType("library");
-                      setWord("الفلسفة");
+                      setIndexingType("hadith");
+                      setWord("يسروا");
+                      setDocumentName("كامل الكتب الـ ١٤ الصحاح بالتوازي");
                     }}
                     className={`py-1.5 px-3 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                      indexingType === "library"
+                      indexingType === "hadith"
                         ? "bg-[#1e293b] text-sky-400 border border-slate-700/50 shadow-xs"
                         : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
                     }`}
                   >
                     <BookMarked className="h-3 w-3" />
-                    منظومة مكتبية
+                    منظومة حديثية
                   </button>
                 </div>
               </div>
 
-              {/* مدخلات الكتاب المكتبي في حال اختياره */}
+              {/* مدخلات الحديث الشريف في حال اختيار المنظومة الحديثية */}
               <AnimatePresence mode="wait">
-                {indexingType === "library" && (
+                {indexingType === "hadith" && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -256,32 +276,36 @@ ${derivationsText}
                     className="space-y-3.5 overflow-hidden"
                   >
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-slate-400">عنوان المستند / مادة البحث</label>
-                      <input
-                        type="text"
+                      <label className="text-xs font-medium text-slate-400">طريق أو كتاب الحديث المطلوب (من الصحاح الـ ١٤)</label>
+                      <select
                         value={documentName}
                         onChange={(e) => setDocumentName(e.target.value)}
-                        className="w-full text-xs bg-slate-950 border border-slate-800 rounded px-3 py-2 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-slate-200 font-sans"
-                        placeholder="مثال: لسان العرب، دلائل الإعجاز..."
-                      />
+                        className="w-full text-xs bg-slate-950 border border-slate-800 rounded px-3 py-2.5 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-slate-200 font-sans cursor-pointer"
+                      >
+                        {HADITH_BOOKS_14.map((book, idx) => (
+                          <option key={idx} value={book} className="bg-[#111827] text-slate-200">
+                            {idx === 0 ? "🌟 " : `${idx}- `} {book}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-slate-400 flex justify-between items-center">
-                        <span>محتوى النص للمطابقة الصرفية</span>
+                        <span>متن أو نص الحديث الشريف المصاحب</span>
                         <span className="text-[10px] text-slate-500 font-mono">اختياري</span>
                       </label>
                       <textarea
                         value={customText}
                         onChange={(e) => setCustomText(e.target.value)}
-                        className="w-full text-xs font-sans bg-slate-950 border border-slate-800 rounded px-3 py-2 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-slate-200 h-28 resize-none"
-                        placeholder="اكتب هنا المقتطف اللغوي للبحث فيه، أو اسحب وضع كتاب كامل من الأسفل لتفنيده فورياً..."
+                        className="w-full text-xs font-sans bg-slate-950 border border-slate-800 rounded px-3 py-2 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-slate-200 h-24 resize-none"
+                        placeholder="أدخل هنا نص حديث مخصص لمطابقة طرقه لغوياً والبحث الصرفي فيه..."
                       />
                     </div>
 
-                    {/* رفع ملف كتاب مخصص */}
+                    {/* رفع مرويات حديثية */}
                     <div className="space-y-2">
-                      <label className="text-xs font-medium text-slate-400 block">محمل الكتب والنصوص (.txt)</label>
+                      <label className="text-xs font-medium text-slate-400 block">رفع متن حديثي خارجي (.txt)</label>
                       <div className="border border-dashed border-slate-800 hover:border-sky-500 rounded-xl p-4 text-center cursor-pointer relative bg-slate-950/40 transition-colors">
                         <input
                           type="file"
@@ -291,7 +315,7 @@ ${derivationsText}
                         />
                         <FileText className="h-6 w-6 text-slate-500 mx-auto mb-1.5" />
                         <span className="text-[10px] text-slate-500 block leading-tight">
-                          {uploadedFileName ? `تم إدراج: ${uploadedFileName}` : "انقر أو أسحب الملف النصي إلى هنا لفرزه"}
+                          {uploadedFileName ? `تم إدراج: ${uploadedFileName}` : "انقر أو أسحب الملف لمتن حديثي هنا لفرزه لغوياً"}
                         </span>
                       </div>
                     </div>
@@ -349,8 +373,8 @@ ${derivationsText}
                     type="button"
                     onClick={() => {
                       setWord(sample.word);
-                      setIndexingType(sample.type as "quranic" | "library");
-                      handleAnalyze(null, sample.word, sample.type as "quranic" | "library");
+                      setIndexingType(sample.type as "quranic" | "hadith");
+                      handleAnalyze(null, sample.word, sample.type as "quranic" | "hadith");
                     }}
                     className={`w-full text-right p-2.5 rounded-xl text-xs transition-all flex items-center justify-between border cursor-pointer ${
                       word === sample.word && indexingType === sample.type
@@ -396,10 +420,10 @@ ${derivationsText}
                       <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                         <span className="text-xs font-bold text-slate-200 block mb-1.5 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 bg-sky-400 rounded-full"></span>
-                          البحث المكتبي (المنظومة المكتبية)
+                          البحث الحديثي (المنظومة الحديثية)
                         </span>
                         <p className="text-[11px] text-slate-500">
-                          يخضع لآلية فرز الفصول/الأبواب المتوفرة بالمستندات المصدرية المرفوعة أو المدخلة مع تحديد دقيق للصفحة والسطر.
+                          البحث والمطابقة في الكتب الـ ١٤ الصحاح والسنن والمسانيد للحديث الشريف مع فرز الأبواب، وأرقام الأحاديث وتخريجها.
                         </p>
                       </div>
                     </div>
@@ -506,7 +530,7 @@ ${derivationsText}
                 </div>
                 <div className="mt-4 flex gap-2">
                   <span className="px-2.5 py-1 bg-slate-950/80 text-[10px] text-slate-400 rounded-md border border-slate-800 font-mono">
-                    منظومة الفهرسة: {indexingType === "quranic" ? "قرآنية صرامة" : "مكتبية صرامة"}
+                    منظومة الفهرسة: {indexingType === "quranic" ? "قرآنية صرامة" : "حديثية صرامة"}
                   </span>
                   <span className="px-2.5 py-1 bg-slate-950/80 text-[10px] text-slate-400 rounded-md border border-slate-800 font-serif">
                     جذر الكلمة: [ {result.root} ]
@@ -598,10 +622,10 @@ ${derivationsText}
                               
                               <div className="flex gap-2 text-[10px] text-slate-400 font-mono">
                                 <span className="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300 animate-pulse">
-                                  {indexingType === "quranic" ? `آية:` : `صفحة:`} {place.reference}
+                                  {indexingType === "quranic" ? `آية:` : `رقم الحديث:`} {place.reference}
                                 </span>
                                 <span className="bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300">
-                                  {indexingType === "quranic" ? `جزء:` : `سطر:`} {place.extra}
+                                  {indexingType === "quranic" ? `جزء:` : `اسم الباب:`} {place.extra}
                                 </span>
                               </div>
                             </div>
@@ -753,7 +777,7 @@ ${derivationsText}
       {/* تذييل الصفحة الفخم والهادئ */}
       <footer className="border-t border-slate-850 bg-[#0A0C10] py-8 mt-20 print:hidden text-center text-xs text-slate-500 space-y-2">
         <p className="font-sans font-medium text-slate-300">
-          محرك البحث اللغوي والحاسبة الإحصائية للكتب والمصحف © ٢٠٢٦
+          محرك البحث اللغوي والحاسبة الإحصائية للحديث الشريف والمصحف الشريف © ٢٠٢٦
         </p>
         <p className="max-w-md mx-auto text-[11px] px-4 font-sans text-slate-500">
           تم تطوير هذه المنظومة بالاعتماد الشامل على تقنيات استرجاع الـ AI المتقدم بمطابقة لسان العرب لتقديم تحليلات موثقة خالية من الهلاوس وبصيغ فهرسة مطابقة للمعايير العليا والأكاديمية.

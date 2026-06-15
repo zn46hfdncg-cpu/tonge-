@@ -170,21 +170,29 @@ const PREDEFINED_ANALYSIS: Record<string, any> = {
       { form: "بشرا", count: 1, percentage: 12.5 }
     ]
   },
-  "الفلسفه": {
-    root: "ف ل س ف",
-    definition: "درج في العربية المعاصرة من اليونانية (فيلوسوفيا) بمعنى محبة الحكمة. الفيلسوف هو الحكيم. فلسف الكلام: نمقه وأتى فيه بأمور عقلية وتحليلية للكون والحقائق العميقة والمصطلحات الدقيقة.",
-    word_exact_count: 1,
+  "يسروا": {
+    root: "ي س ر",
+    definition: "اليسر والسهولة واللين وهو ضد العسر والضيق. وفي لسان العرب: اليُسْرُ نقيض العُسْر، ويَسَّرَ الأمرَ: سهَّله وهو الحث على التمهيد والتسهيل للناس تطييباً لقلوبهم.",
+    word_exact_count: 12,
     places: [
       {
-        location: "الفصل الأول: البنية الفكرية",
-        reference: "14",
-        extra: "السطر الثامن",
-        context: "إن الفلسفة بمفهومها اللغوي تسعى لتفنيد معاني الكلمات والتحقيق الدقيق لنشأة اللفظ والمعنى."
+        location: "صحيح البخاري - كتاب العلم",
+        reference: "حديث رقم 69",
+        extra: "الجزء الأول",
+        context: "قَالَ النَّبِيُّ صلى الله عليه وسلم: «يَسِّرُوا وَلاَ تُعَسِّرُوا، وَبَشِّرُوا وَلاَ تُنَفِّرُوا»"
+      },
+      {
+        location: "صحيح مسلم - كتاب الجهاد والسير",
+        reference: "حديث رقم 1734",
+        extra: "الجزء الثالث",
+        context: "عَنْ أَنَسٍ عَنِ النَّبِيِّ صلى الله عليه وسلم قَالَ: «يَسِّرُوا وَلَا تُعَسِّرُوا وَسَكِّنُوا وَلَا تُنَفِّرُوا»"
       }
     ],
     root_derivations: [
-      { form: "الفلسفة", count: 1, percentage: 50.0 },
-      { form: "الفلاسفة", count: 1, percentage: 50.0 }
+      { form: "يسروا", count: 6, percentage: 30.0 },
+      { form: "اليسر", count: 8, percentage: 40.0 },
+      { form: "يسيرا", count: 4, percentage: 20.0 },
+      { form: "معسرة", count: 2, percentage: 10.0 }
     ]
   }
 };
@@ -229,7 +237,7 @@ app.post("/api/analyze", async (req, res) => {
        return;
     }
 
-    const type = indexingType || "quranic"; // "quranic" (قرآني) or "library" (مكتبي)
+    const type = indexingType || "quranic"; // "quranic" (قرآني) or "hadith" (حديثي)
     const isQuranic = type === "quranic";
 
     const ai = getGeminiClient();
@@ -240,11 +248,13 @@ app.post("/api/analyze", async (req, res) => {
 تطبيق نظام الفهرسة القرآني الصارم: [اسم السورة] -> [رقم الآية] -> [رقم الجزء].`;
     } else {
       const textToSearch = customText ? customText.substring(0, 100000) : ""; // safety limit
-      const docName = documentName || "كتاب مخصص";
-      contextPrompt = `النص المستهدف هو من كتاب بعنوان "${docName}". ومحتوى النص أو مقتطفات منه للبحث والتحليل هي: 
-"${textToSearch || "نص لغوي عام"}"
-الكلمة المستهدفة للبحث والإحصاء الدقيق هي: "${word}".
-تطبيق نظام الفهرسة المكتبي الصارم: [اسم الفصل/الباب] -> [رقم الصفحة] -> [رقم السطر]. إذا لم تتوفر فصول استنتجها أو رتبها بناءً على المتاح في النص.`;
+      const docName = documentName || "الكتب الـ ١٤ الصحاح بالتوازي";
+      contextPrompt = `النص المستهدف هو من الكتب الـ ١٤ الصحاح والسنن والمسانيد المعتمدة للحديث الشريف والسنة النبوية المطهرة (صحيح البخاري، صحيح مسلم، سنن أبي داود، سنن الترمذي، سنن النسائي، سنن ابن ماجه، موطأ مالك، مسند أحمد، سنن الدارمي، صحيح ابن خزيمة، صحيح ابن حبان، مستدرك الحاكم، سنن الدارقطني، مصنف عبد الرزاق).
+الكتاب المختار حالياً أو المحتوى المطلوب التوجيه والبحث فيه هو: "${docName}".
+إذا تم توجيه البحث لكتاب معين، ركز عليه، وإلا فابحث في مجموع الكتب الـ ١٤ الصحاح بالتوازي.
+الكلمة المستهدفة للبحث والإحصاء الدقيق والصرفي هي: "${word}".
+إذا تتوفر نصوص مضافة للمطابقة استخدمها: "${textToSearch || ""}".
+تطبيق نظام الفهرسة الحديثي الصارم بمخرجات دقيقة: [اسم كتاب الحديث المطبوع - كصحيح البخاري مثلاً] -> [رقم الحديث أو رقم الصفحة] -> [اسم الباب أو رقم الجزء].`;
     }
 
     // System instruction and output structured schema setup
@@ -304,9 +314,9 @@ ${contextPrompt}
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  location: { type: Type.STRING, description: "اسم السورة أو الفصل/الباب" },
-                  reference: { type: Type.STRING, description: "رقم الآية أو رقم الصفحة" },
-                  extra: { type: Type.STRING, description: "رقم الجزء أو رقم السطر" },
+                  location: { type: Type.STRING, description: "اسم السورة أو المصنف/كتاب الحديث الشريف" },
+                  reference: { type: Type.STRING, description: "رقم الآية أو رقم الحديث/الصفحة" },
+                  extra: { type: Type.STRING, description: "رقم الجزء أو اسم الباب/الجزء الكلي" },
                   context: { type: Type.STRING, description: "سياق ورود الكلمة مشكولاً كاملاً بدقة مع إيضاح الكلمة" }
                 },
                 required: ["location", "reference", "extra", "context"]
@@ -390,3 +400,5 @@ async function startServer() {
 }
 
 startServer();
+
+export default app;
